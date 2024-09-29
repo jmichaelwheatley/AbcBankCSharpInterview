@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using abc_bank.Abstractions.Classes;
 using abc_bank.Models;
 using abc_bank.TypeDefinitions;
 
@@ -9,14 +10,14 @@ namespace abc_bank
     public class Customer
     {
         private string name;
-        private List<Account> _accounts;
+        private List<AccountBase> _accounts;
 
         public AccountType[] AccountTypes => _accounts.Select(a => a.GetAccountType).ToArray();
 
         public Customer(string name)
         {
             this.name = name;
-            _accounts = new List<Account>();
+            _accounts = new List<AccountBase>();
         }
 
         public string GetName()
@@ -24,7 +25,7 @@ namespace abc_bank
             return name;
         }
 
-        public Customer OpenAccount(Account account)
+        public Customer OpenAccount(AccountBase account)
         {
             _accounts.Add(account);
             return this;
@@ -38,7 +39,7 @@ namespace abc_bank
         public decimal TotalInterestEarned()
         {
             decimal total = 0;
-            foreach (Account a in _accounts)
+            foreach (AccountBase a in _accounts)
                 total += a.InterestEarned();
             return total;
         }
@@ -48,7 +49,7 @@ namespace abc_bank
         public CustomerStatementSummary GetStatement()
         {
             List<AccountTransactionInfo> accountData = new List<AccountTransactionInfo>();
-            foreach (Account acc in _accounts)
+            foreach (AccountBase acc in _accounts)
             {
                 accountData.Add(new AccountTransactionInfo(acc.GetAccountType, acc.sumTransactions(), acc.transactions.Select(t => t.Amount).ToArray()));
             }
@@ -57,7 +58,7 @@ namespace abc_bank
             return statement;
         }
 
-        private string statementForAccount(Account a)
+        private string statementForAccount(AccountBase a)
         {
             string s = "";
 
@@ -91,7 +92,7 @@ namespace abc_bank
             string statement = null;
 
             statement = "Statement for " + name + "\n";
-            foreach (Account a in _accounts) { statement += "\n" + statementForAccount(a) + "\n"; }
+            foreach (AccountBase a in _accounts) { statement += "\n" + statementForAccount(a) + "\n"; }
             statement += "\nTotal In All Accounts " + ToDollars(TotalAllAccounts());
 
             return statement;
@@ -105,7 +106,7 @@ namespace abc_bank
         private decimal TotalAllAccounts()
         {
             decimal total = 0.0m;
-            foreach (Account a in _accounts) { total += a.sumTransactions(); }
+            foreach (AccountBase a in _accounts) { total += a.sumTransactions(); }
 
             return total;
         }

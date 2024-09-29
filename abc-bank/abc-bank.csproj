@@ -39,17 +39,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Account.cs" />
+    <Compile Include="Abstractions\Classes\AccountBase.cs" />
     <Compile Include="Bank.cs" />
     <Compile Include="Customer.cs" />
     <Compile Include="DateProvider.cs" />
+    <Compile Include="Implementation\BaseClass.cs" />
+    <Compile Include="Implementation\CheckingAccount.cs" />
+    <Compile Include="Implementation\MaxiSavingsAccount.cs" />
+    <Compile Include="Implementation\SavingsAccount.cs" />
     <Compile Include="Models\AccountTransactionInfo.cs" />
     <Compile Include="Models\CustomerStatementSummary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Transaction.cs" />
     <Compile Include="TypeDefinitions\AccountType.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Abstractions\Interfaces\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

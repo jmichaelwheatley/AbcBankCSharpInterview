@@ -2,6 +2,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using abc_bank;
 using abc_bank.TypeDefinitions;
+using abc_bank.Abstractions.Classes;
+using abc_bank.Implementation;
 
 namespace abc_bank_tests
 {
@@ -16,7 +18,7 @@ namespace abc_bank_tests
         {
             Bank bank = new Bank();
             Customer customer = CreateDefaultCustomer();
-            customer.OpenAccount(new Account(AccountType.CHECKING));
+            customer.OpenAccount(new CheckingAccount());
             bank.AddCustomer(customer);
 
             Assert.AreEqual("Customer Summary\n - John (1 account)", bank.CustomerSummary());
@@ -26,7 +28,7 @@ namespace abc_bank_tests
         public void CheckingAccountInterest()
         {
             Bank bank = new Bank();
-            Account checkingAccount = new Account(AccountType.CHECKING);      
+            AccountBase checkingAccount = new CheckingAccount();      
             bank.AddCustomer(CreateDefaultCustomer().OpenAccount(checkingAccount));
             
             checkingAccount.Deposit(100.0m);
@@ -37,7 +39,7 @@ namespace abc_bank_tests
         public void SavingsAccountInterest()
         {
             Bank bank = new Bank();
-            Account checkingAccount = new Account(AccountType.SAVINGS);
+            AccountBase checkingAccount = new SavingsAccount();
             bank.AddCustomer(CreateDefaultCustomer().OpenAccount(checkingAccount));
 
             checkingAccount.Deposit(1500.0m);
@@ -49,7 +51,7 @@ namespace abc_bank_tests
         public void MaxiSavingsAccountInterest()
         {
             Bank bank = new Bank();
-            Account checkingAccount = new Account(AccountType.MAXI_SAVINGS);
+            AccountBase checkingAccount = new MaxiSavingsAccount();
             bank.AddCustomer(CreateDefaultCustomer().OpenAccount(checkingAccount));
 
             checkingAccount.Deposit(3000.0m);

@@ -4,6 +4,8 @@ using abc_bank;
 using abc_bank.TypeDefinitions;
 using abc_bank.Models;
 using System.Linq;
+using abc_bank.Implementation;
+using abc_bank.Abstractions.Classes;
 
 namespace abc_bank_tests
 {
@@ -20,7 +22,7 @@ namespace abc_bank_tests
         public void CanCreateCustomerWithSavings()
         {
             Customer newCustomer = CreateDefaultCustomer();
-            newCustomer.OpenAccount(new Account(AccountType.SAVINGS));
+            newCustomer.OpenAccount(new SavingsAccount());
 
             Assert.AreEqual(1, newCustomer.GetNumberOfAccounts());
             Assert.AreEqual(AccountType.SAVINGS, newCustomer.AccountTypes[0]);
@@ -30,7 +32,7 @@ namespace abc_bank_tests
         public void CanCreateCustomerWithChecking()
         {
             Customer newCustomer = CreateDefaultCustomer();
-            newCustomer.OpenAccount(new Account(AccountType.CHECKING));
+            newCustomer.OpenAccount(new CheckingAccount());
 
             Assert.AreEqual(1, newCustomer.GetNumberOfAccounts());
             Assert.AreEqual(AccountType.CHECKING, newCustomer.AccountTypes[0]);
@@ -40,7 +42,7 @@ namespace abc_bank_tests
         public void CanCreateCustomerWithMaxi()
         {
             Customer newCustomer = CreateDefaultCustomer();
-            newCustomer.OpenAccount(new Account(AccountType.MAXI_SAVINGS));
+            newCustomer.OpenAccount(new MaxiSavingsAccount());
 
             Assert.AreEqual(1, newCustomer.GetNumberOfAccounts());
             Assert.AreEqual(AccountType.MAXI_SAVINGS, newCustomer.AccountTypes[0]);
@@ -50,8 +52,8 @@ namespace abc_bank_tests
         public void CanCreateWithTwoAccounts()
         {
             Customer newCustomer = CreateDefaultCustomer();
-            newCustomer.OpenAccount(new Account(AccountType.SAVINGS));
-            newCustomer.OpenAccount(new Account(AccountType.CHECKING));
+            newCustomer.OpenAccount(new SavingsAccount());
+            newCustomer.OpenAccount(new CheckingAccount());
 
             Assert.AreEqual(2, newCustomer.GetNumberOfAccounts());
         }
@@ -60,9 +62,9 @@ namespace abc_bank_tests
         public void CanCreateWithThreeAccounts()
         {
             Customer newCustomer = CreateDefaultCustomer();
-            newCustomer.OpenAccount(new Account(AccountType.SAVINGS));
-            newCustomer.OpenAccount(new Account(AccountType.CHECKING));
-            newCustomer.OpenAccount(new Account(AccountType.MAXI_SAVINGS));
+            newCustomer.OpenAccount(new SavingsAccount());
+            newCustomer.OpenAccount(new CheckingAccount());
+            newCustomer.OpenAccount(new MaxiSavingsAccount());
 
             Assert.AreEqual(3, newCustomer.GetNumberOfAccounts());
         }
@@ -73,7 +75,7 @@ namespace abc_bank_tests
             decimal depositAmount = 99.0m;
 
             Customer newCustomer = CreateDefaultCustomer();
-            Account checkingAccount = new Account(AccountType.CHECKING);
+            AccountBase checkingAccount = new CheckingAccount();
             newCustomer.OpenAccount(checkingAccount);
 
             Assert.AreEqual(0, checkingAccount.sumTransactions());
@@ -89,7 +91,7 @@ namespace abc_bank_tests
             decimal withdrawAmount = 50.50m;
 
             Customer newCustomer = CreateDefaultCustomer();
-            Account checkingAccount = new Account(AccountType.CHECKING);
+            AccountBase checkingAccount = new CheckingAccount();
             newCustomer.OpenAccount(checkingAccount);
 
             checkingAccount.Deposit(depositAmount);
@@ -137,8 +139,8 @@ namespace abc_bank_tests
 
         private Customer CreateTwoAccountCustomer(decimal depositCheckingAmount, decimal depositSavingsAmount, decimal withdrawCheckingAmount, decimal withdrawSavingsAmount)
         {
-            Account checkingAccount = new Account(AccountType.CHECKING);
-            Account savingsAccount = new Account(AccountType.SAVINGS);
+            AccountBase checkingAccount = new CheckingAccount();
+            AccountBase savingsAccount = new SavingsAccount();
 
             Customer newCustomer = CreateDefaultCustomer();
             newCustomer.OpenAccount(checkingAccount);
