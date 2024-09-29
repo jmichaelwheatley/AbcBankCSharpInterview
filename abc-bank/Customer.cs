@@ -1,90 +1,113 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using abc_bank.Models;
+using abc_bank.TypeDefinitions;
 
 namespace abc_bank
 {
     public class Customer
     {
-        private String name;
-        private List<Account> accounts;
+        private string name;
+        private List<Account> _accounts;
 
-        public Customer(String name)
+        public AccountType[] AccountTypes => _accounts.Select(a => a.GetAccountType).ToArray();
+
+        public Customer(string name)
         {
             this.name = name;
-            this.accounts = new List<Account>();
+            _accounts = new List<Account>();
         }
 
-        public String GetName()
+        public string GetName()
         {
             return name;
         }
 
         public Customer OpenAccount(Account account)
         {
-            accounts.Add(account);
+            _accounts.Add(account);
             return this;
         }
 
         public int GetNumberOfAccounts()
         {
-            return accounts.Count;
+            return _accounts.Count;
         }
 
-        public double TotalInterestEarned() 
+        public double TotalInterestEarned()
         {
             double total = 0;
-            foreach (Account a in accounts)
+            foreach (Account a in _accounts)
                 total += a.InterestEarned();
             return total;
         }
 
-        public String GetStatement() 
+
+
+        public CustomerStatementSummary GetStatement()
         {
-            String statement = null;
-            statement = "Statement for " + name + "\n";
-            double total = 0.0;
-            foreach (Account a in accounts) 
+            List<AccountTransactionInfo> accountData = new List<AccountTransactionInfo>();
+            foreach (Account acc in _accounts)
             {
-                statement += "\n" + statementForAccount(a) + "\n";
-                total += a.sumTransactions();
+                accountData.Add(new AccountTransactionInfo(acc.GetAccountType, acc.sumTransactions(), acc.transactions.Select(t => t.Amount).ToArray()));
             }
-            statement += "\nTotal In All Accounts " + ToDollars(total);
+
+            CustomerStatementSummary statement = new CustomerStatementSummary(accountData, GetStatementText(), TotalAllAccounts());
             return statement;
         }
 
-        private String statementForAccount(Account a) 
+        private string statementForAccount(Account a)
         {
-            String s = "";
+            string s = "";
 
-           //Translate to pretty account type
-            switch(a.GetAccountType()){
-                case Account.CHECKING:
+            //Translate to pretty account type
+            switch (a.GetAccountType)
+            {
+                case AccountType.CHECKING:
                     s += "Checking Account\n";
                     break;
-                case Account.SAVINGS:
+                case AccountType.SAVINGS:
                     s += "Savings Account\n";
                     break;
-                case Account.MAXI_SAVINGS:
+                case AccountType.MAXI_SAVINGS:
                     s += "Maxi Savings Account\n";
                     break;
             }
 
             //Now total up all the transactions
             double total = 0.0;
-            foreach (Transaction t in a.transactions) {
-                s += "  " + (t.amount < 0 ? "withdrawal" : "deposit") + " " + ToDollars(t.amount) + "\n";
-                total += t.amount;
+            foreach (Transaction t in a.transactions)
+            {
+                s += "  " + (t.Amount < 0 ? "withdrawal" : "deposit") + " " + ToDollars(t.Amount) + "\n";
+                total += t.Amount;
             }
             s += "Total " + ToDollars(total);
             return s;
         }
 
-        private String ToDollars(double d)
+        private string GetStatementText()
         {
-            return String.Format("$%,.2f", Math.Abs(d));
+            string statement = null;
+
+            statement = "Statement for " + name + "\n";
+            foreach (Account a in _accounts) { statement += "\n" + statementForAccount(a) + "\n"; }
+            statement += "\nTotal In All Accounts " + ToDollars(TotalAllAccounts());
+
+            return statement;
+        }
+
+        private string ToDollars(double d)
+        {
+            return $"{Math.Abs(d):C2}";
+        }
+
+        private double TotalAllAccounts()
+        {
+            double total = 0.0;
+            foreach (Account a in _accounts) { total += a.sumTransactions(); }
+
+            return total;
         }
     }
 }

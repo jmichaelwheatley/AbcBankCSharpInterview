@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using abc_bank;
+using abc_bank.TypeDefinitions;
 
 namespace abc_bank_tests
 {
@@ -15,7 +16,7 @@ namespace abc_bank_tests
         {
             Bank bank = new Bank();
             Customer john = new Customer("John");
-            john.OpenAccount(new Account(Account.CHECKING));
+            john.OpenAccount(new Account(AccountType.CHECKING));
             bank.AddCustomer(john);
 
             Assert.AreEqual("Customer Summary\n - John (1 account)", bank.CustomerSummary());
@@ -24,7 +25,7 @@ namespace abc_bank_tests
         [TestMethod]
         public void CheckingAccount() {
             Bank bank = new Bank();
-            Account checkingAccount = new Account(Account.CHECKING);
+            Account checkingAccount = new Account(AccountType.CHECKING);
             Customer bill = new Customer("Bill").OpenAccount(checkingAccount);
             bank.AddCustomer(bill);
 
@@ -36,7 +37,7 @@ namespace abc_bank_tests
         [TestMethod]
         public void Savings_account() {
             Bank bank = new Bank();
-            Account checkingAccount = new Account(Account.SAVINGS);
+            Account checkingAccount = new Account(AccountType.SAVINGS);
             bank.AddCustomer(new Customer("Bill").OpenAccount(checkingAccount));
 
             checkingAccount.Deposit(1500.0);
@@ -47,7 +48,7 @@ namespace abc_bank_tests
         [TestMethod]
         public void Maxi_savings_account() {
             Bank bank = new Bank();
-            Account checkingAccount = new Account(Account.MAXI_SAVINGS);
+            Account checkingAccount = new Account(AccountType.MAXI_SAVINGS);
             bank.AddCustomer(new Customer("Bill").OpenAccount(checkingAccount));
 
             checkingAccount.Deposit(3000.0);

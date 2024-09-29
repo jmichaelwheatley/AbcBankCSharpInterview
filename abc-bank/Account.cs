@@ -1,25 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using abc_bank.TypeDefinitions;
 
 namespace abc_bank
 {
     public class Account
-    {
+    {   
 
-        public const int CHECKING = 0;
-        public const int SAVINGS = 1;
-        public const int MAXI_SAVINGS = 2;
+        private readonly AccountType _accountType;
 
-        private readonly int accountType;
+        public AccountType GetAccountType => _accountType;
         public List<Transaction> transactions;
 
-        public Account(int accountType) 
+        public Account(AccountType accountType) 
         {
-            this.accountType = accountType;
-            this.transactions = new List<Transaction>();
+            _accountType = accountType;
+            transactions = new List<Transaction>();
         }
 
         public void Deposit(double amount) 
@@ -43,8 +39,8 @@ namespace abc_bank
         public double InterestEarned() 
         {
             double amount = sumTransactions();
-            switch(accountType){
-                case SAVINGS:
+            switch(_accountType){
+                case AccountType.SAVINGS:
                     if (amount <= 1000)
                         return amount * 0.001;
                     else
@@ -52,7 +48,7 @@ namespace abc_bank
     //            case SUPER_SAVINGS:
     //                if (amount <= 4000)
     //                    return 20;
-                case MAXI_SAVINGS:
+                case AccountType.MAXI_SAVINGS:
                     if (amount <= 1000)
                         return amount * 0.02;
                     if (amount <= 2000)
@@ -64,21 +60,10 @@ namespace abc_bank
         }
 
         public double sumTransactions() {
-           return CheckIfTransactionsExist(true);
-        }
-
-        private double CheckIfTransactionsExist(bool checkAll) 
-        {
             double amount = 0.0;
             foreach (Transaction t in transactions)
-                amount += t.amount;
+                amount += t.Amount;
             return amount;
         }
-
-        public int GetAccountType() 
-        {
-            return accountType;
-        }
-
     }
 }
