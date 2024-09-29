@@ -7,10 +7,10 @@ namespace abc_bank.Models
     {
         public readonly List<AccountTransactionInfo> AccountSummaryData;
         public readonly string SummaryAsText;
-        public readonly double Total;
-        public double NumberOfAccounts => AccountSummaryData.Count;
+        public readonly decimal Total;
+        public decimal NumberOfAccounts => AccountSummaryData.Count;
 
-        public CustomerStatementSummary(List<AccountTransactionInfo> accountSummaryData, string summaryAsText, double total)
+        public CustomerStatementSummary(List<AccountTransactionInfo> accountSummaryData, string summaryAsText, decimal total)
         {
             AccountSummaryData = accountSummaryData;
             SummaryAsText = summaryAsText;

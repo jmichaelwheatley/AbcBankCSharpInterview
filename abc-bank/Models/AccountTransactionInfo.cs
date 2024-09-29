@@ -7,10 +7,10 @@ namespace abc_bank.Models
     public class AccountTransactionInfo
     {
         public readonly AccountType AccountType;
-        public readonly double Total;
-        public readonly double[] TransactionAmounts;
+        public readonly decimal Total;
+        public readonly decimal[] TransactionAmounts;
 
-        public AccountTransactionInfo(AccountType accountType, double total, double[] transactionAmounts)
+        public AccountTransactionInfo(AccountType accountType, decimal total, decimal[] transactionAmounts)
         {
             AccountType = accountType;
             Total = total;

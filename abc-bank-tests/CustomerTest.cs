@@ -70,7 +70,7 @@ namespace abc_bank_tests
         [TestMethod]
         public void CanDepositAmount()
         {
-            double depositAmount = 99.0;
+            decimal depositAmount = 99.0m;
 
             Customer newCustomer = CreateDefaultCustomer();
             Account checkingAccount = new Account(AccountType.CHECKING);
@@ -85,8 +85,8 @@ namespace abc_bank_tests
         [TestMethod]
         public void CanWithdrawAmount()
         {
-            double depositAmount = 99.0;
-            double withdrawAmount = 50.50;
+            decimal depositAmount = 99.0m;
+            decimal withdrawAmount = 50.50m;
 
             Customer newCustomer = CreateDefaultCustomer();
             Account checkingAccount = new Account(AccountType.CHECKING);
@@ -101,7 +101,7 @@ namespace abc_bank_tests
         public void VerifyTextStatementContent()
         {
 
-            Customer customer = CreateTwoAccountCustomer(100.0, 4000.0, 0, 200.0);
+            Customer customer = CreateTwoAccountCustomer(100.0m, 4000.0m, 0, 200.0m);
             CustomerStatementSummary statement = customer.GetStatement();
 
             Assert.AreEqual($"Statement for {DEFAULT_CUSTOMER_NAME}\n" +
@@ -121,21 +121,21 @@ namespace abc_bank_tests
         [TestMethod]
         public void StatementHasCorrectAccountTypeTotals()
         {
-            CustomerStatementSummary statement = CreateTwoAccountCustomer(100.0, 4000.0, 0, 200.0).GetStatement();
-            double checkingTotal = statement.AccountSummaryData.Where(acc => acc.AccountType == AccountType.CHECKING).Single().Total;
-            double savingsTotal = statement.AccountSummaryData.Where(acc => acc.AccountType == AccountType.SAVINGS).Single().Total;
+            CustomerStatementSummary statement = CreateTwoAccountCustomer(100.0m, 4000.0m, 0, 200.0m).GetStatement();
+            decimal checkingTotal = statement.AccountSummaryData.Where(acc => acc.AccountType == AccountType.CHECKING).Single().Total;
+            decimal savingsTotal = statement.AccountSummaryData.Where(acc => acc.AccountType == AccountType.SAVINGS).Single().Total;
 
-            Assert.AreEqual(checkingTotal, 100.0);
-            Assert.AreEqual(savingsTotal, 3800.0);
+            Assert.AreEqual(checkingTotal, 100.0m);
+            Assert.AreEqual(savingsTotal, 3800.0m);
         }
 
         public void StatementHasValidTotal()
         {
-            CustomerStatementSummary statement = CreateTwoAccountCustomer(100.0, 4000.0, 0, 200.0).GetStatement();          
-            Assert.AreEqual(statement.Total, 3900.0);
+            CustomerStatementSummary statement = CreateTwoAccountCustomer(100.0m, 4000.0m, 0, 200.0m).GetStatement();          
+            Assert.AreEqual(statement.Total, 3900.0m);
         }
 
-        private Customer CreateTwoAccountCustomer(double depositCheckingAmount, double depositSavingsAmount, double withdrawCheckingAmount, double withdrawSavingsAmount)
+        private Customer CreateTwoAccountCustomer(decimal depositCheckingAmount, decimal depositSavingsAmount, decimal withdrawCheckingAmount, decimal withdrawSavingsAmount)
         {
             Account checkingAccount = new Account(AccountType.CHECKING);
             Account savingsAccount = new Account(AccountType.SAVINGS);
