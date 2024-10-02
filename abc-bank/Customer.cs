@@ -9,20 +9,20 @@ namespace abc_bank
 {
     public class Customer
     {
-        private string name;
+        private string _name;
         private List<AccountBase> _accounts;
 
         public AccountType[] AccountTypes => _accounts.Select(a => a.GetAccountType).ToArray();
 
         public Customer(string name)
         {
-            this.name = name;
+            _name = name;
             _accounts = new List<AccountBase>();
         }
 
         public string GetName()
         {
-            return name;
+            return _name;
         }
 
         public Customer OpenAccount(AccountBase account)
@@ -91,7 +91,7 @@ namespace abc_bank
         {
             string statement = null;
 
-            statement = "Statement for " + name + "\n";
+            statement = "Statement for " + _name + "\n";
             foreach (AccountBase a in _accounts) { statement += "\n" + statementForAccount(a) + "\n"; }
             statement += "\nTotal In All Accounts " + ToDollars(TotalAllAccounts());
 

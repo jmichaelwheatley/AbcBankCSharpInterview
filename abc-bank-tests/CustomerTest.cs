@@ -6,23 +6,39 @@ using abc_bank.Models;
 using System.Linq;
 using abc_bank.Implementation;
 using abc_bank.Abstractions.Classes;
+using abc_bank.Other;
+using abc_bank.Abstractions.Interfaces;
+using System.Collections.Generic;
+using abc_bank.Models.Results;
 
 namespace abc_bank_tests
 {
 
     [TestClass]
     public class CustomerTest
-    {     
-
+    {
         private const string DEFAULT_CUSTOMER_NAME = "Oscar";
+        private const string DEFAULT_CUSTOMER_LAST_NAME = "Whimsy";
+
+        private MyFakeResolver _resolver;
+        private ICustomerCreationService _customerCreationService;
+
         private Customer CreateDefaultCustomer() => new Customer(DEFAULT_CUSTOMER_NAME);
 
+        [TestInitialize]
+        public void InitTests()
+        {
+            _resolver = new MyFakeResolver();
+            _customerCreationService = _resolver.ResolveFor<ICustomerCreationService>();
+        }
 
         [TestMethod]
         public void CanCreateCustomerWithSavings()
         {
-            Customer newCustomer = CreateDefaultCustomer();
-            newCustomer.OpenAccount(new SavingsAccount());
+            CreateCustomerData cd = new CreateCustomerData(DEFAULT_CUSTOMER_NAME, DEFAULT_CUSTOMER_LAST_NAME,
+                new List<CreateCustomerInitialAccountData>() { new CreateCustomerInitialAccountData(AccountType.SAVINGS, 0) });
+
+            Customer newCustomer = _customerCreationService.CreateCustomer(cd).Customer;
 
             Assert.AreEqual(1, newCustomer.GetNumberOfAccounts());
             Assert.AreEqual(AccountType.SAVINGS, newCustomer.AccountTypes[0]);
@@ -31,8 +47,10 @@ namespace abc_bank_tests
         [TestMethod]
         public void CanCreateCustomerWithChecking()
         {
-            Customer newCustomer = CreateDefaultCustomer();
-            newCustomer.OpenAccount(new CheckingAccount());
+            CreateCustomerData cd = new CreateCustomerData(DEFAULT_CUSTOMER_NAME, DEFAULT_CUSTOMER_LAST_NAME,
+                new List<CreateCustomerInitialAccountData>() { new CreateCustomerInitialAccountData(AccountType.CHECKING, 0) });
+
+            Customer newCustomer = _customerCreationService.CreateCustomer(cd).Customer;
 
             Assert.AreEqual(1, newCustomer.GetNumberOfAccounts());
             Assert.AreEqual(AccountType.CHECKING, newCustomer.AccountTypes[0]);
@@ -41,8 +59,10 @@ namespace abc_bank_tests
         [TestMethod]
         public void CanCreateCustomerWithMaxi()
         {
-            Customer newCustomer = CreateDefaultCustomer();
-            newCustomer.OpenAccount(new MaxiSavingsAccount());
+            CreateCustomerData cd = new CreateCustomerData(DEFAULT_CUSTOMER_NAME, DEFAULT_CUSTOMER_LAST_NAME,
+                new List<CreateCustomerInitialAccountData>() { new CreateCustomerInitialAccountData(AccountType.MAXI_SAVINGS, 0) });
+
+            Customer newCustomer = _customerCreationService.CreateCustomer(cd).Customer;
 
             Assert.AreEqual(1, newCustomer.GetNumberOfAccounts());
             Assert.AreEqual(AccountType.MAXI_SAVINGS, newCustomer.AccountTypes[0]);
@@ -51,32 +71,51 @@ namespace abc_bank_tests
         [TestMethod]
         public void CanCreateWithTwoAccounts()
         {
-            Customer newCustomer = CreateDefaultCustomer();
-            newCustomer.OpenAccount(new SavingsAccount());
-            newCustomer.OpenAccount(new CheckingAccount());
+            CreateCustomerData cd = new CreateCustomerData(DEFAULT_CUSTOMER_NAME, DEFAULT_CUSTOMER_LAST_NAME,
+               new List<CreateCustomerInitialAccountData>() {
+                                                                new CreateCustomerInitialAccountData(AccountType.SAVINGS, 0),
+                                                                new CreateCustomerInitialAccountData(AccountType.CHECKING, 0) });
 
+            Customer newCustomer = _customerCreationService.CreateCustomer(cd).Customer;
             Assert.AreEqual(2, newCustomer.GetNumberOfAccounts());
         }
 
         [TestMethod]
         public void CanCreateWithThreeAccounts()
         {
-            Customer newCustomer = CreateDefaultCustomer();
-            newCustomer.OpenAccount(new SavingsAccount());
-            newCustomer.OpenAccount(new CheckingAccount());
-            newCustomer.OpenAccount(new MaxiSavingsAccount());
+            CreateCustomerData cd = new CreateCustomerData(DEFAULT_CUSTOMER_NAME, DEFAULT_CUSTOMER_LAST_NAME,
+                new List<CreateCustomerInitialAccountData>() {
+                                                                new CreateCustomerInitialAccountData(AccountType.SAVINGS, 0),
+                                                                new CreateCustomerInitialAccountData(AccountType.CHECKING, 0),
+                                                                new CreateCustomerInitialAccountData(AccountType.MAXI_SAVINGS, 0) });
+
+            Customer newCustomer = _customerCreationService.CreateCustomer(cd).Customer;
 
             Assert.AreEqual(3, newCustomer.GetNumberOfAccounts());
         }
 
         [TestMethod]
-        public void CanDepositAmount()
+        public void CanDepositAmountOnCustomerCreation()
         {
             decimal depositAmount = 99.0m;
 
-            Customer newCustomer = CreateDefaultCustomer();
-            AccountBase checkingAccount = new CheckingAccount();
-            newCustomer.OpenAccount(checkingAccount);
+            CreateCustomerData cd = new CreateCustomerData(DEFAULT_CUSTOMER_NAME, DEFAULT_CUSTOMER_LAST_NAME,
+                   new List<CreateCustomerInitialAccountData>() { new CreateCustomerInitialAccountData(AccountType.CHECKING, depositAmount) });
+
+            CreateCustomerResult result = _customerCreationService.CreateCustomer(cd);            
+            Assert.AreEqual(depositAmount, result.Accounts[0].sumTransactions());
+        }
+
+        [TestMethod]
+        public void CanDepositAmountAfterCustomerCreation()
+        {
+            decimal depositAmount = 99.0m;
+
+            CreateCustomerData cd = new CreateCustomerData(DEFAULT_CUSTOMER_NAME, DEFAULT_CUSTOMER_LAST_NAME,
+                   new List<CreateCustomerInitialAccountData>() { new CreateCustomerInitialAccountData(AccountType.CHECKING, 0) });
+
+            CreateCustomerResult result = _customerCreationService.CreateCustomer(cd);
+            CheckingAccount checkingAccount = result.Accounts[0] as CheckingAccount;
 
             Assert.AreEqual(0, checkingAccount.sumTransactions());
 
@@ -90,9 +129,11 @@ namespace abc_bank_tests
             decimal depositAmount = 99.0m;
             decimal withdrawAmount = 50.50m;
 
-            Customer newCustomer = CreateDefaultCustomer();
-            AccountBase checkingAccount = new CheckingAccount();
-            newCustomer.OpenAccount(checkingAccount);
+            CreateCustomerData cd = new CreateCustomerData(DEFAULT_CUSTOMER_NAME, DEFAULT_CUSTOMER_LAST_NAME,
+                    new List<CreateCustomerInitialAccountData>() { new CreateCustomerInitialAccountData(AccountType.CHECKING, 0) });
+
+            CreateCustomerResult result = _customerCreationService.CreateCustomer(cd);
+            CheckingAccount checkingAccount = result.Accounts[0] as CheckingAccount;
 
             checkingAccount.Deposit(depositAmount);
             checkingAccount.Withdraw(withdrawAmount);
@@ -106,7 +147,7 @@ namespace abc_bank_tests
             Customer customer = CreateTwoAccountCustomer(100.0m, 4000.0m, 0, 200.0m);
             CustomerStatementSummary statement = customer.GetStatement();
 
-            Assert.AreEqual($"Statement for {DEFAULT_CUSTOMER_NAME}\n" +
+            Assert.AreEqual($"Statement for {DEFAULT_CUSTOMER_NAME} {DEFAULT_CUSTOMER_LAST_NAME}\n" +
                     "\n" +
                     "Checking Account\n" +
                     "  deposit $100.00\n" +
@@ -133,25 +174,26 @@ namespace abc_bank_tests
 
         public void StatementHasValidTotal()
         {
-            CustomerStatementSummary statement = CreateTwoAccountCustomer(100.0m, 4000.0m, 0, 200.0m).GetStatement();          
+            CustomerStatementSummary statement = CreateTwoAccountCustomer(100.0m, 4000.0m, 0, 200.0m).GetStatement();
             Assert.AreEqual(statement.Total, 3900.0m);
         }
 
         private Customer CreateTwoAccountCustomer(decimal depositCheckingAmount, decimal depositSavingsAmount, decimal withdrawCheckingAmount, decimal withdrawSavingsAmount)
-        {
-            AccountBase checkingAccount = new CheckingAccount();
-            AccountBase savingsAccount = new SavingsAccount();
+        { 
+            CreateCustomerData cd = new CreateCustomerData(DEFAULT_CUSTOMER_NAME, DEFAULT_CUSTOMER_LAST_NAME,
+                    new List<CreateCustomerInitialAccountData>() { 
+                        new CreateCustomerInitialAccountData(AccountType.CHECKING, depositCheckingAmount), 
+                        new CreateCustomerInitialAccountData(AccountType.SAVINGS, depositSavingsAmount) });
 
-            Customer newCustomer = CreateDefaultCustomer();
-            newCustomer.OpenAccount(checkingAccount);
-            newCustomer.OpenAccount(savingsAccount);
+            CreateCustomerResult result = _customerCreationService.CreateCustomer(cd);
+            AccountBase checkingAccount = result.Accounts.Where(a => a.GetAccountType == AccountType.CHECKING).Single();
+            AccountBase savingsAccount = result.Accounts.Where(a => a.GetAccountType == AccountType.SAVINGS).Single();
 
-            if (depositCheckingAmount > 0) { checkingAccount.Deposit(depositCheckingAmount); }
-            if (depositSavingsAmount > 0) { savingsAccount.Deposit(depositSavingsAmount); }
             if (withdrawCheckingAmount > 0) { checkingAccount.Withdraw(withdrawCheckingAmount); }
             if (withdrawSavingsAmount > 0) { savingsAccount.Withdraw(withdrawSavingsAmount); }
 
-            return newCustomer;
+            return result.Customer;
         }
+
     }
 }
